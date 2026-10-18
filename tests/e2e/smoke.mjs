@@ -110,10 +110,13 @@ check("zoom: address has range", /\?r=\d+-\d+/.test(page.url()), page.url());
 const [, rFrom, rTo] = page.url().match(/\?r=(\d+)-(\d+)/) ?? [];
 check("zoom: range is the dragged 30-60 %", Number(rTo) / Number(rFrom) > 1.6 && Number(rTo) / Number(rFrom) < 2.4, `${rFrom}-${rTo}`);
 check("zoom: whole values shown", (await page.locator(".tile__whole").count()) > 0);
+const curveTitle = page.locator(".power-curve__head h3");
+if (await curveTitle.count()) check("zoom: power curve of the section", (await curveTitle.textContent()).endsWith("Abschnitt"), await curveTitle.textContent());
 await page.screenshot({ path: join(outDir, "06-zoomed.png"), fullPage: true });
 await page.keyboard.press("Escape");
 await page.waitForTimeout(300);
 check("Esc resets zoom", (await page.locator(".tile__whole:not(.tile__whole--idle)").count()) === 0);
+if (await curveTitle.count()) check("Esc: power curve of the whole ride", (await curveTitle.textContent()).endsWith("ganze Fahrt"), await curveTitle.textContent());
 
 // sections tab, power curve, zones
 check("sections table", (await page.locator(".sections").count()) === 1);

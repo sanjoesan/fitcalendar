@@ -275,4 +275,6 @@ export const en: Readonly<Record<TextKey, string>> = {
   "export.packing": "packing …",
   "export.done": "{n} files exported",
   "export.failed": "The export failed.",
+  "power.ofRide": "whole ride",
+  "power.ofStretch": "section",
 };

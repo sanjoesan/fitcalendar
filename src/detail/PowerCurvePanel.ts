@@ -1,6 +1,6 @@
-// The power curve - the best mean power for every duration from 1 s to the ride's length - and the table of best
-// efforts, both always for the whole ride, as one line (user 2026-10-18: "nur eine linie"). A row zooms to where the
-// effort was ridden and stays marked.
+// The power curve - the best mean power for every duration - as one line: the whole ride's, or while a stretch is
+// zoomed, only the stretch's (user 2026-10-18: "entweder nur den teil oder gesamt"). The table of best efforts is
+// always the whole ride's; a row zooms to where the effort was ridden and stays marked.
 
 import uPlot from "uplot";
 import type { AppContext } from "../app/context";
@@ -19,6 +19,9 @@ export class PowerCurvePanel {
   private readonly chartHost = h("div", { class: "power-curve__chart" });
   private readonly table = h("div", { class: "power-curve__table" });
   private readonly readout = h("span", { class: "power-curve__readout" });
+  private readonly title = h("h3", {});
+  /** The curve shown: the whole ride's or the zoomed stretch's. */
+  private curve: BestEffort[] = [];
   private plot: uPlot | null = null;
   /** The whole ride's curve and best efforts: computed once, they do not change with the zoom. */
   private readonly wholeCurve: BestEffort[] = [];
@@ -33,7 +36,9 @@ export class PowerCurvePanel {
     const whole = perSecond(session.streams.time, power);
     this.wholeCurve = bestEfforts(whole, CURVE_DURATIONS);
     this.efforts = bestEfforts(whole, BEST_EFFORT_DURATIONS);
-    this.element.append(h("header", { class: "power-curve__head" }, h("h3", {}, t("power.curve")), this.readout), this.chartHost, this.table);
+    this.curve = this.wholeCurve;
+    this.title.textContent = t("power.curve");
+    this.element.append(h("header", { class: "power-curve__head" }, this.title, this.readout), this.chartHost, this.table);
     this.renderTable();
     this.disposer.add(
       session.on("view", (v) => { if (!v.live) this.showView(); }),
@@ -63,10 +68,16 @@ export class PowerCurvePanel {
     return athleteForRide(this.ctx.athlete.profile, this.session.summary).weight;
   }
 
-  /** The zoom changed: only the marked effort row follows; the curve is the ride's. */
+  /** The zoom changed: the curve becomes the stretch's (or the ride's again); the marked effort row follows. */
   private showView(): void {
-    if (!this.plot && this.chartHost.clientWidth > 0) this.renderChart();
-    markZoomRows(this.table, this.session, this.ctx.i18n.t.bind(this.ctx.i18n));
+    const { session } = this;
+    const t = this.ctx.i18n.t.bind(this.ctx.i18n);
+    this.curve = session.isZoomed
+      ? bestEfforts(perSecond(session.streams.time, session.streams.channels.power!, session.view), CURVE_DURATIONS)
+      : this.wholeCurve;
+    this.title.textContent = `${t("power.curve")} · ${t(session.isZoomed ? "power.ofStretch" : "power.ofRide")}`;
+    if (this.chartHost.clientWidth > 0) this.renderChart();
+    markZoomRows(this.table, session, t);
   }
 
   private renderChart(): void {
@@ -77,8 +88,8 @@ export class PowerCurvePanel {
     const weight = this.weight();
     const theme = readChartTheme();
     const colour = cssVar("--ch-power");
-    const xs = this.wholeCurve.map((p) => p.duration);
-    const whole = this.wholeCurve.map((p) => p.watts);
+    const xs = this.curve.map((p) => p.duration);
+    const watts = this.curve.map((p) => p.watts);
     const perKilo = (w: number) => (weight ? ` · ${fmt.number(w / weight, 2)} W/kg` : "");
 
     this.plot?.destroy();
@@ -99,10 +110,10 @@ export class PowerCurvePanel {
       hooks: {
         setCursor: [(u) => {
           const i = u.cursor.idx;
-          this.readout.textContent = i == null ? "" : `${durationLabel(xs[i]!, c)}: ${fmt.number(whole[i]!)} ${t("unit.w")}${perKilo(whole[i]!)}`;
+          this.readout.textContent = i == null ? "" : `${durationLabel(xs[i]!, c)}: ${fmt.number(watts[i]!)} ${t("unit.w")}${perKilo(watts[i]!)}`;
         }],
       },
-    }, [xs, whole], this.chartHost);
+    }, [xs, watts], this.chartHost);
   }
 
   private renderTable(): void {

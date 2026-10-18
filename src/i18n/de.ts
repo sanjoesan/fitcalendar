@@ -273,6 +273,8 @@ export const de = {
   "export.packing": "wird gepackt …",
   "export.done": "{n} Dateien exportiert",
   "export.failed": "Der Export ist fehlgeschlagen.",
+  "power.ofRide": "ganze Fahrt",
+  "power.ofStretch": "Abschnitt",
 } as const;
 
 export type TextKey = keyof typeof de;
