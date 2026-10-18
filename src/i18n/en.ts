@@ -26,6 +26,8 @@ export const en: Readonly<Record<TextKey, string>> = {
   "action.more": "More",
   "action.zoomBack": "Zoom back",
   "action.resetZoom": "Whole ride",
+  "action.showRow": "show",
+  "action.resetRow": "Reset",
   "action.open": "Open",
 
   "lang.label": "Language",
@@ -118,9 +120,6 @@ export const en: Readonly<Record<TextKey, string>> = {
   "stat.max": "max {v}",
   "stat.whole": "Total {v}",
 
-  "detail.section": "Section {from} – {to}",
-  "detail.lap": "Lap {n}",
-  "detail.climb": "Climb {n}",
   "detail.noGps": "No GPS data - this ride has no track.",
   "detail.notFound": "Ride not found.",
   "detail.loadError": "The ride's data could not be loaded.",
@@ -159,10 +158,8 @@ export const en: Readonly<Record<TextKey, string>> = {
 
   "action.save": "Save",
   "channel.balance": "L/R balance",
-  "detail.effort": "Best {d}",
   "detail.noLaps": "This ride has no laps.",
   "detail.noSplits": "Too short for splits.",
-  "detail.split": "Split {n}",
   "detail.splitLength": "Split length",
   "detail.splits": "Splits",
   "detail.statistics": "Statistics",
@@ -179,7 +176,7 @@ export const en: Readonly<Record<TextKey, string>> = {
   "nav.profile": "Profile",
   "power.curve": "Power curve",
   "power.duration": "Duration",
-  "power.show": "show",
+  "power.stretch": "stretch",
   "profile.current": "Current values",
   "profile.entryHint": "Only filled fields are saved; empty ones keep their previous value. A ride uses the values that applied on its day - rides before the first entry use the first one.",
   "profile.ftp": "FTP",

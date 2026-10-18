@@ -24,6 +24,8 @@ export const de = {
   "action.more": "Mehr",
   "action.zoomBack": "Zoom zurück",
   "action.resetZoom": "Ganze Fahrt",
+  "action.showRow": "zeigen",
+  "action.resetRow": "Zurücksetzen",
   "action.open": "Öffnen",
 
   "lang.label": "Sprache",
@@ -116,9 +118,6 @@ export const de = {
   "stat.max": "max {v}",
   "stat.whole": "Gesamt {v}",
 
-  "detail.section": "Abschnitt {from} – {to}",
-  "detail.lap": "Runde {n}",
-  "detail.climb": "Anstieg {n}",
   "detail.noGps": "Keine GPS-Daten - diese Fahrt hat keine Strecke.",
   "detail.notFound": "Fahrt nicht gefunden.",
   "detail.loadError": "Die Daten der Fahrt konnten nicht geladen werden.",
@@ -157,10 +156,8 @@ export const de = {
 
   "action.save": "Speichern",
   "channel.balance": "L/R-Balance",
-  "detail.effort": "Bestwert {d}",
   "detail.noLaps": "Diese Fahrt hat keine Runden.",
   "detail.noSplits": "Zu kurz für Splits.",
-  "detail.split": "Split {n}",
   "detail.splitLength": "Split-Länge",
   "detail.splits": "Splits",
   "detail.statistics": "Statistik",
@@ -177,7 +174,7 @@ export const de = {
   "nav.profile": "Profil",
   "power.curve": "Leistungskurve",
   "power.duration": "Dauer",
-  "power.show": "zeigen",
+  "power.stretch": "Abschnitt",
   "profile.current": "Aktuelle Werte",
   "profile.entryHint": "Nur ausgefüllte Felder werden gespeichert; leere behalten ihren bisherigen Wert. Eine Fahrt nutzt die Werte, die an ihrem Tag galten - Fahrten vor dem ersten Eintrag nutzen den ersten.",
   "profile.ftp": "FTP",

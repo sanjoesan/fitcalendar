@@ -38,12 +38,7 @@
 .tile__value { font-family: var(--font-display); font-size: 1.45rem; line-height: 1.2; }
 .tile__second { font-size: 0.8rem; color: var(--muted); }
 .tile__whole { font-size: 0.74rem; color: var(--faint); }
-.section-chip {
-  justify-self: start; display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 14px; border-radius: 999px;
-  background: var(--wheat); color: #2e2a24; font-weight: 600; font-size: 0.88rem;
-}
-.section-chip .icon-button { color: #2e2a24; }
-.section-chip--idle, .tile__whole--idle { visibility: hidden; }
+.tile__whole--idle { visibility: hidden; }
 
 /* --- map + charts ----------------------------------------------------------------------------------------------- */
 .detail__main { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 16px; align-items: start; }
@@ -189,3 +184,13 @@
   .detail__charts { padding: 8px 6px; }
   .pane__label { inset-inline-start: 50px; }
 }
+
+/* --- rows that zoom to their stretch ---------------------------------------------------------------------------- */
+.zoom-row__cell { text-align: end; inline-size: 1%; }
+.zoom-row__action {
+  border: 1px solid transparent; background: transparent; color: var(--terracotta); font: inherit; font-size: 0.8rem;
+  padding: 2px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+}
+.zoom-row__action:hover { border-color: var(--terracotta); }
+.zoom-row__action--reset { background: var(--terracotta); color: #fff; }
+.zoom-row__action--reset:hover { background: var(--terracotta-dark); border-color: var(--terracotta-dark); }

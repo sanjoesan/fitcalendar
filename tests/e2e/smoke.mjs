@@ -106,7 +106,6 @@ await page.mouse.move(box.x + box.width * 0.45, box.y + box.height / 2, { steps:
 await page.mouse.move(box.x + box.width * 0.6, box.y + box.height / 2, { steps: 5 });
 await page.mouse.up();
 await page.waitForTimeout(500);
-check("zoom: section chip", await page.locator(".section-chip").isVisible(), await page.locator(".section-chip").textContent() ?? "");
 check("zoom: address has range", /\?r=\d+-\d+/.test(page.url()), page.url());
 const [, rFrom, rTo] = page.url().match(/\?r=(\d+)-(\d+)/) ?? [];
 check("zoom: range is the dragged 30-60 %", Number(rTo) / Number(rFrom) > 1.6 && Number(rTo) / Number(rFrom) < 2.4, `${rFrom}-${rTo}`);
@@ -114,13 +113,24 @@ check("zoom: whole values shown", (await page.locator(".tile__whole").count()) >
 await page.screenshot({ path: join(outDir, "06-zoomed.png"), fullPage: true });
 await page.keyboard.press("Escape");
 await page.waitForTimeout(300);
-check("Esc resets zoom", (await page.locator(".section-chip:not(.section-chip--idle)").count()) === 0);
+check("Esc resets zoom", (await page.locator(".tile__whole:not(.tile__whole--idle)").count()) === 0);
 
 // sections tab, power curve, zones
 check("sections table", (await page.locator(".sections").count()) === 1);
 check("zones panel", (await page.locator(".zone-card").count()) > 0);
 const hasPower = (await page.locator(".power-curve:not([hidden])").count()) === 1;
-if (hasPower) check("power curve", (await page.locator(".power-curve canvas").count()) > 0);
+if (hasPower) {
+  check("power curve", (await page.locator(".power-curve canvas").count()) > 0);
+  const rows = page.locator(".power-curve tbody tr");
+  const before = await rows.count();
+  await rows.first().click();
+  await page.waitForTimeout(400);
+  check("best effort: all rows stay", (await rows.count()) === before, `${await rows.count()} of ${before}`);
+  check("best effort: row offers reset", (await rows.first().locator(".zoom-row__action").textContent()) === "Zurücksetzen");
+  await rows.first().locator(".zoom-row__action").click();
+  await page.waitForTimeout(400);
+  check("best effort: reset to whole ride", !/\?r=/.test(page.url()) && (await rows.first().locator(".zoom-row__action").textContent()) === "zeigen", page.url());
+}
 // enter FTP right in the zone card
 const ask = page.locator(".zone-card--ask input").first();
 if (await ask.count()) {

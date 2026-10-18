@@ -4,8 +4,7 @@
 import type { AppContext } from "../app/context";
 import { Disposer } from "../app/Emitter";
 import { h, replaceChildren } from "../ui/dom";
-import { icon } from "../ui/icons";
-import type { DetailSession, ViewLabel } from "./DetailSession";
+import type { DetailSession } from "./DetailSession";
 import { computeFigures, type Figures } from "./figures";
 import { STAT_GROUPS, TILES, statValue, type StatContext, type StatDef } from "./statDefs";
 
@@ -43,8 +42,7 @@ export class StatsPanel {
     const figures = range.from === whole.range.from && range.to === whole.range.to ? whole : computeFigures(session.summary, session.streams, range, profile);
     const c: StatContext = { fmt: ctx.i18n.fmt, t: ctx.i18n.t.bind(ctx.i18n) };
     replaceChildren(this.tiles,
-      // Chip and "Gesamt" lines keep their space while hidden: a drag must not move the profiles under the pointer.
-      this.sectionChip(c, figures, session.preview ? null : session.viewState.label),
+      // The "Gesamt" lines keep their space while hidden: a drag must not move the profiles under the pointer.
       h("div", { class: "tiles" }, TILES.flatMap((tile) => {
         const v = statValue(tile.main, figures);
         if (v === null) return [];
@@ -73,22 +71,7 @@ export class StatsPanel {
       h("dd", {}, stat.format(v, c)),
     ];
   }
-
-  private sectionChip(c: StatContext, f: Figures, label: ViewLabel | null): HTMLElement {
-    const { streams } = this.session;
-    const at = (i: number) => (streams.distance ? c.fmt.distance(streams.distance[i]!) : c.fmt.duration(streams.time[i]!));
-    const text = f.whole ? "–" : label ? viewLabelText(label, c) : c.t("detail.section", { from: at(f.range.from), to: at(f.range.to) });
-    return h("div", { class: f.whole ? "section-chip section-chip--idle" : "section-chip", "aria-hidden": f.whole ? "true" : undefined },
-      h("span", {}, text),
-      h("button", { class: "icon-button icon-button--small", type: "button", title: c.t("action.resetZoom"), onclick: () => this.session.resetZoom("toolbar") }, icon("close")));
-  }
 }
-
-export function viewLabelText(label: ViewLabel, c: StatContext): string {
-  return label.kind === "effort" ? c.t("detail.effort", { d: durationLabel(label.duration, c) }) : c.t(SECTION_KEYS[label.kind], { n: label.n });
-}
-
-const SECTION_KEYS = { lap: "detail.lap", split: "detail.split", climb: "detail.climb" } as const;
 
 /** 5 s, 1 min, 20 min, 1 h */
 export function durationLabel(seconds: number, c: StatContext): string {

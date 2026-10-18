@@ -12,6 +12,7 @@ import { segmentStats, type SegmentStats } from "../model/segment";
 import type { ActivityStreams, SampleRange } from "../model/types";
 import { h, replaceChildren } from "../ui/dom";
 import type { DetailSession } from "./DetailSession";
+import { markZoomRows, zoomRow } from "./zoomRow";
 
 interface Column {
   readonly headKey: TextKey;
@@ -91,7 +92,7 @@ export class SectionsTable {
       ranges.length === 0
         ? h("p", { class: "sections__empty" }, t(chosen.emptyKey))
         : h("div", { class: "table-scroll" }, h("table", { class: "table" },
-            h("thead", {}, h("tr", {}, h("th", {}, t("detail.col.number")), columns.map((c) => h("th", {}, t(c.headKey))))),
+            h("thead", {}, h("tr", {}, h("th", {}, t("detail.col.number")), columns.map((c) => h("th", {}, t(c.headKey))), h("th", {}, ""))),
             h("tbody", {}, ranges.map((range, i) => this.row(chosen, range, i, columns))))),
     );
     this.markActive();
@@ -100,24 +101,11 @@ export class SectionsTable {
   private row(tab: TabDef, range: SampleRange, i: number, columns: readonly Column[]): HTMLElement {
     const { session, ctx } = this;
     const stats = segmentStats(session.streams, range);
-    const tr = h("tr", { class: "table__row--link", tabindex: 0, "data-from": range.from, "data-to": range.to },
-      h("td", {}, i + 1),
-      columns.map((c) => h("td", {}, c.cell(stats, range, session.streams, ctx.i18n.fmt))));
-    const go = () => session.zoomTo(range, "section", { kind: tab.kind, n: i + 1 });
-    tr.addEventListener("click", go);
-    tr.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
-    tr.addEventListener("pointerenter", () => session.hoverSection(range));
-    tr.addEventListener("pointerleave", () => session.hoverSection(null));
-    tr.addEventListener("focus", () => session.hoverSection(range));
-    tr.addEventListener("blur", () => session.hoverSection(null));
-    return tr;
+    return zoomRow(session, range, { kind: tab.kind, n: i + 1 },
+      [i + 1, ...columns.map((c) => c.cell(stats, range, session.streams, ctx.i18n.fmt))], ctx.i18n.t.bind(ctx.i18n));
   }
 
-  /** The row that is the current view stays marked. */
   private markActive(): void {
-    const { from, to } = this.session.view;
-    for (const tr of this.element.querySelectorAll<HTMLElement>("tbody tr")) {
-      tr.classList.toggle("table__row--active", Number(tr.dataset.from) === from && Number(tr.dataset.to) === to);
-    }
+    markZoomRows(this.element, this.session, this.ctx.i18n.t.bind(this.ctx.i18n));
   }
 }
