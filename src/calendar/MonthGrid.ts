@@ -3,34 +3,30 @@
 
 import type { AppContext } from "../app/context";
 import { weekday } from "../model/calendar";
-import type { TotalsMetric } from "../model/totals";
 import { h } from "../ui/dom";
 import type { DayModel, MonthModel, WeekModel } from "./MonthModel";
 import { rideChip } from "./RideChip";
-import { totalsMetric } from "./totalsMetrics";
 
 const MAX_CHIPS = 3;
 
-export function monthGrid(ctx: AppContext, model: MonthModel, metric: TotalsMetric, compact: boolean): HTMLElement {
+export function monthGrid(ctx: AppContext, model: MonthModel, compact: boolean): HTMLElement {
   const t = ctx.i18n.t.bind(ctx.i18n);
-  const def = totalsMetric(metric);
-  const maxWeek = Math.max(1, ...model.weeks.map((w) => def.value(w.totals)));
   const grid = h("div", { class: "month-grid", role: "grid", "aria-label": ctx.i18n.fmt.monthYear(model.month.year, model.month.month) },
     h("div", { class: "month-grid__row month-grid__head", role: "row" },
       h("span", { class: "month-grid__weeknum", role: "columnheader" }, ""),
       Array.from({ length: 7 }, (_, i) => h("span", { role: "columnheader", class: i >= 5 ? "weekend" : undefined }, t(`weekday.short.${i}` as "weekday.short.0"))),
       h("span", { role: "columnheader", class: "month-grid__totalshead" }, t("calendar.week"))),
-    model.weeks.map((week) => weekRow(ctx, week, metric, maxWeek, compact)),
+    model.weeks.map((week) => weekRow(ctx, week, compact)),
   );
   wireKeyboard(grid);
   return grid;
 }
 
-function weekRow(ctx: AppContext, week: WeekModel, metric: TotalsMetric, maxWeek: number, compact: boolean): HTMLElement {
+function weekRow(ctx: AppContext, week: WeekModel, compact: boolean): HTMLElement {
   return h("div", { class: "month-grid__row week", role: "row" },
     h("span", { class: "month-grid__weeknum", role: "rowheader" }, ctx.i18n.t("calendar.weekShort", { n: week.isoWeek })),
     week.days.map((day) => dayCell(ctx, day, compact)),
-    weekTotals(ctx, week, metric, maxWeek),
+    weekTotals(ctx, week),
   );
 }
 
@@ -59,20 +55,17 @@ function dayCell(ctx: AppContext, day: DayModel, compact: boolean): HTMLElement 
   return cell;
 }
 
-function weekTotals(ctx: AppContext, week: WeekModel, metric: TotalsMetric, maxWeek: number): HTMLElement {
+function weekTotals(ctx: AppContext, week: WeekModel): HTMLElement {
   const { fmt } = ctx.i18n;
   const t = ctx.i18n.t.bind(ctx.i18n);
   const { totals } = week;
   if (totals.count === 0) return h("div", { class: "week__totals week__totals--empty", role: "gridcell" }, h("span", {}, "–"));
-  const bar = h("span", { class: "week__bar" });
-  bar.style.inlineSize = `${(totalsMetric(metric).value(totals) / maxWeek) * 100}%`;
   return h("div", { class: "week__totals", role: "gridcell" },
     h("strong", { class: "week__distance" }, fmt.distance(totals.distance)),
     h("span", { class: "week__line" }, `${fmt.durationShort(totals.movingTime)} · ↑${fmt.ascent(totals.ascent)}`),
     h("span", { class: "week__line week__line--muted" },
       totals.count === 1 ? t("calendar.ride") : t("calendar.rides", { n: totals.count }),
       totals.stress > 0 ? ` · ${fmt.number(totals.stress)} TSS` : ""),
-    h("span", { class: "week__track", title: t(totalsMetric(metric).labelKey) }, bar),
   );
 }
 

@@ -56,7 +56,6 @@ export class CalendarView implements View {
       () => tablet.removeEventListener("change", rerender),
       ctx.rides.on("changed", rerender),
       ctx.athlete.on("changed", rerender),
-      ctx.prefs.on("changed", (key) => { if (key === "barMetric") rerender(); }),
     );
     this.disposer.listen(document, "keydown", (e) => this.onKey(e));
     this.wireSwipe();
@@ -78,15 +77,13 @@ export class CalendarView implements View {
     const prevMonth = addMonths(month, -1);
     const previous = aggregate(ctx.rides.all().filter((r) => sameMonth(r, prevMonth)), stressOf);
     const all = ctx.rides.all();
-    const metric = ctx.prefs.get("barMetric");
     const phone = matchMedia(PHONE).matches;
     const compact = matchMedia(TABLET).matches;
     this.preview.hide();
 
-    const grid = phone ? monthAgenda(ctx, model) : monthGrid(ctx, model, metric, compact);
+    const grid = phone ? monthAgenda(ctx, model) : monthGrid(ctx, model, compact);
     const summary = monthSummary(ctx, {
-      model, previous, metric,
-      onMetric: (m) => ctx.prefs.set("barMetric", m),
+      model, previous,
       before: [...all].reverse().find((r) => compareMonths(monthOf(r.day), month) < 0),
       after: all.find((r) => compareMonths(monthOf(r.day), month) > 0),
     });

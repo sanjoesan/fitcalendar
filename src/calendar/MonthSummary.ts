@@ -1,10 +1,10 @@
-// The band under the grid: the month's totals with the change against the month before, the longest ride, and the
-// switch for what the week bars measure. Without rides in the month: where the nearest rides are.
+// The band under the grid: the month's totals with the change against the month before and the longest ride.
+// Without rides in the month: where the nearest rides are.
 
 import type { AppContext } from "../app/context";
 import { routeHref } from "../app/Router";
 import { monthOf, type YearMonth } from "../model/calendar";
-import type { Totals, TotalsMetric } from "../model/totals";
+import type { Totals } from "../model/totals";
 import type { ActivitySummary } from "../model/types";
 import { h } from "../ui/dom";
 import { rideTitle } from "../ui/rideTitle";
@@ -14,13 +14,11 @@ import { TOTALS_METRIC_DEFS } from "./totalsMetrics";
 export interface MonthSummaryInput {
   readonly model: MonthModel;
   readonly previous: Totals;
-  readonly metric: TotalsMetric;
-  readonly onMetric: (metric: TotalsMetric) => void;
   readonly before: ActivitySummary | undefined;
   readonly after: ActivitySummary | undefined;
 }
 
-export function monthSummary(ctx: AppContext, { model, previous, metric, onMetric, before, after }: MonthSummaryInput): HTMLElement {
+export function monthSummary(ctx: AppContext, { model, previous, before, after }: MonthSummaryInput): HTMLElement {
   const { fmt } = ctx.i18n;
   const t = ctx.i18n.t.bind(ctx.i18n);
   const { totals } = model;
@@ -51,11 +49,5 @@ export function monthSummary(ctx: AppContext, { model, previous, metric, onMetri
       model.longest ? h("div", { class: "figure" }, h("span", { class: "figure__label" }, t("calendar.longest")),
         h("a", { class: "figure__link", href: routeHref({ kind: "ride", id: model.longest.id, view: null }) },
           `${rideTitle(ctx.i18n, model.longest)} · ${fmt.distance(model.longest.distance)}`)) : null),
-    h("div", { class: "month-summary__bars" },
-      h("span", { class: "month-summary__barslabel" }, t("calendar.bars")),
-      h("div", { class: "segmented segmented--small", role: "radiogroup", "aria-label": t("calendar.bars") },
-        TOTALS_METRIC_DEFS.filter((d) => d.key !== "stress" || totals.stress > 0).map((d) => h("button", {
-          type: "button", role: "radio", class: "segmented__option", "aria-checked": String(d.key === metric), onclick: () => onMetric(d.key),
-        }, t(d.labelKey))))),
   );
 }

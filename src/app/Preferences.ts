@@ -2,7 +2,6 @@
 // as a convenience - the app works the same when the browser refuses storage.
 
 import type { ChannelKey } from "../model/types";
-import type { TotalsMetric } from "../model/totals";
 import { Emitter } from "./Emitter";
 
 export type XAxis = "distance" | "time";
@@ -17,7 +16,6 @@ export interface PreferenceValues {
   readonly mapColour: "plain" | ChannelKey;
   /** Seconds of the moving average on the curves; 0 = off. */
   readonly smoothing: 0 | 5 | 30;
-  readonly barMetric: TotalsMetric;
   readonly follow: boolean;
   readonly sectionTab: SectionTab;
   readonly splitKm: 1 | 5 | 10;
@@ -31,7 +29,6 @@ const DEFAULTS: PreferenceValues = {
   channelShown: {},
   mapColour: "plain",
   smoothing: 0,
-  barMetric: "distance",
   follow: false,
   sectionTab: "laps",
   splitKm: 5,

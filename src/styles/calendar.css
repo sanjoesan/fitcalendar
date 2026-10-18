@@ -74,8 +74,6 @@
 .week__distance { font-family: var(--font-display); font-size: 1.15rem; }
 .week__line { font-size: 0.8rem; }
 .week__line--muted { color: var(--muted); }
-.week__track { display: block; block-size: 5px; border-radius: 3px; background: var(--cream); margin-block-start: 6px; overflow: hidden; }
-.week__bar { display: block; block-size: 100%; border-radius: 3px; background: linear-gradient(to right, var(--wheat), var(--ochre)); }
 
 /* --- month band ------------------------------------------------------------------------------------------------- */
 .month-summary {
@@ -87,8 +85,6 @@
 .month-summary--empty { flex-direction: column; align-items: flex-start; gap: 4px; }
 .month-summary--empty p { margin: 0; }
 .month-summary__nav { display: flex; gap: 18px; }
-.month-summary__bars { display: flex; align-items: center; gap: 8px; }
-.month-summary__barslabel { font-size: 0.8rem; color: var(--muted); }
 .figure { display: grid; gap: 1px; }
 .figure__label { font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .figure__value { font-family: var(--font-display); font-size: 1.3rem; }

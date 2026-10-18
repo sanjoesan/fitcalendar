@@ -27,7 +27,5 @@ export function aggregate(rides: readonly ActivitySummary[], stressOf: (ride: Ac
   );
 }
 
-/** What the week bars measure; the user picks one. */
+/** The figures of the totals, by name. */
 export type TotalsMetric = "distance" | "movingTime" | "ascent" | "stress";
-
-export const TOTALS_METRICS: readonly TotalsMetric[] = ["distance", "movingTime", "ascent", "stress"];
