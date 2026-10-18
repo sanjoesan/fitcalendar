@@ -20,6 +20,16 @@ export interface StatDef {
   readonly format: (v: number, c: StatContext) => string;
   /** For values that depend on the rider's settings: where the setting came from. */
   readonly source?: (f: Figures) => "profile" | "file" | undefined;
+  /** The measurement the statistic is about: without it on the ride, the statistic is not shown (an FTP or W/kg
+   *  says nothing about a ride without a power meter). */
+  readonly needs?: ChannelKey;
+}
+
+/** A statistic's value for the figures, or null when the ride lacks what it needs. Every display goes through here. */
+export function statValue(stat: StatDef, f: Figures): number | null {
+  if (stat.needs && !f.channels[stat.needs]) return null;
+  const v = stat.value(f);
+  return v == null || Number.isNaN(v) ? null : v;
 }
 
 export interface StatGroup {
@@ -62,17 +72,17 @@ export const STAT = {
   maxSpeed: { labelKey: "stat.maxSpeed", value: max("speed"), format: channel("speed") },
   heartRate: { labelKey: "stat.heartRate", value: mean("heartRate"), format: channel("heartRate") },
   maxHeartRate: { labelKey: "stat.maxHeartRate", value: max("heartRate"), format: channel("heartRate") },
-  heartPctMax: { labelKey: "stat.heartPctMax", value: ratio(mean("heartRate"), (f) => f.athlete.values.maxHr), format: percent, source: (f) => f.athlete.sources.maxHr },
+  heartPctMax: { labelKey: "stat.heartPctMax", value: ratio(mean("heartRate"), (f) => f.athlete.values.maxHr), format: percent, source: (f) => f.athlete.sources.maxHr, needs: "heartRate" },
   power: { labelKey: "stat.power", value: mean("power"), format: watts },
   maxPower: { labelKey: "stat.maxPower", value: max("power"), format: watts },
   normalizedPower: { labelKey: "stat.normalizedPower", value: (f) => f.power?.normalized ?? f.device.normalizedPower, format: watts },
   best20: { labelKey: "stat.best20", value: best(1200), format: watts },
-  intensity: { labelKey: "stat.intensity", value: (f) => f.load?.intensity, format: plain(2), source: ftpSource },
-  tss: { labelKey: "stat.tss", value: (f) => f.load?.stress, format: plain(0), source: ftpSource },
+  intensity: { labelKey: "stat.intensity", value: (f) => f.load?.intensity, format: plain(2), source: ftpSource, needs: "power" },
+  tss: { labelKey: "stat.tss", value: (f) => f.load?.stress, format: plain(0), source: ftpSource, needs: "power" },
   work: { labelKey: "stat.work", value: (f) => f.power?.work ?? f.device.work, format: (v, c) => `${c.fmt.number(v)} kJ` },
-  powerPerKilo: { labelKey: "stat.powerPerKilo", value: ratio(mean("power"), weight), format: perKilo, source: weightSource },
-  npPerKilo: { labelKey: "stat.npPerKilo", value: ratio((f) => f.power?.normalized, weight), format: perKilo, source: weightSource },
-  ftp: { labelKey: "stat.ftp", value: (f) => f.athlete.values.ftp, format: watts, source: ftpSource },
+  powerPerKilo: { labelKey: "stat.powerPerKilo", value: ratio(mean("power"), weight), format: perKilo, source: weightSource, needs: "power" },
+  npPerKilo: { labelKey: "stat.npPerKilo", value: ratio((f) => f.power?.normalized, weight), format: perKilo, source: weightSource, needs: "power" },
+  ftp: { labelKey: "stat.ftp", value: (f) => f.athlete.values.ftp, format: watts, source: ftpSource, needs: "power" },
   balance: { labelKey: "stat.balance", value: (f) => f.device.leftRightBalance ?? f.channels.balance?.mean, format: (v, c) => `${c.fmt.number(v)} % L · ${c.fmt.number(100 - v)} % R` },
   torqueLeft: { labelKey: "stat.torqueLeft", value: (f) => f.device.leftTorqueEffectiveness, format: pedal },
   torqueRight: { labelKey: "stat.torqueRight", value: (f) => f.device.rightTorqueEffectiveness, format: pedal },

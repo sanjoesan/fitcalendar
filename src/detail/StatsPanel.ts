@@ -7,7 +7,7 @@ import { h, replaceChildren } from "../ui/dom";
 import { icon } from "../ui/icons";
 import type { DetailSession, ViewLabel } from "./DetailSession";
 import { computeFigures, type Figures } from "./figures";
-import { STAT_GROUPS, TILES, type StatContext, type StatDef } from "./statDefs";
+import { STAT_GROUPS, TILES, statValue, type StatContext, type StatDef } from "./statDefs";
 
 export class StatsPanel {
   readonly tiles = h("section", { class: "tiles-area" });
@@ -46,10 +46,10 @@ export class StatsPanel {
       // Chip and "Gesamt" lines keep their space while hidden: a drag must not move the profiles under the pointer.
       this.sectionChip(c, figures, session.preview ? null : session.viewState.label),
       h("div", { class: "tiles" }, TILES.flatMap((tile) => {
-        const v = tile.main.value(figures);
-        if (v == null || Number.isNaN(v)) return [];
-        const second = tile.second ? tile.second.stat.value(figures) : null;
-        const totalValue = tile.main.value(whole);
+        const v = statValue(tile.main, figures);
+        if (v === null) return [];
+        const second = tile.second ? statValue(tile.second.stat, figures) : null;
+        const totalValue = statValue(tile.main, whole);
         return [h("div", { class: "tile" },
           h("span", { class: "tile__label" }, c.t(tile.main.labelKey)),
           h("strong", { class: "tile__value" }, tile.main.format(v, c)),
@@ -66,8 +66,8 @@ export class StatsPanel {
   }
 
   private row(stat: StatDef, f: Figures, c: StatContext): HTMLElement[] {
-    const v = stat.value(f);
-    if (v == null || Number.isNaN(v)) return [];
+    const v = statValue(stat, f);
+    if (v === null) return [];
     const source = stat.source?.(f);
     return [
       h("dt", {}, c.t(stat.labelKey)),
