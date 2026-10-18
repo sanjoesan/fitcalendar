@@ -176,7 +176,6 @@ export const en: Readonly<Record<TextKey, string>> = {
   "nav.profile": "Profile",
   "power.curve": "Power curve",
   "power.duration": "Duration",
-  "power.stretch": "stretch",
   "profile.current": "Current values",
   "profile.entryHint": "Only filled fields are saved; empty ones keep their previous value. A ride uses the values that applied on its day - rides before the first entry use the first one.",
   "profile.ftp": "FTP",

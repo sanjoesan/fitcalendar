@@ -174,7 +174,6 @@ export const de = {
   "nav.profile": "Profil",
   "power.curve": "Leistungskurve",
   "power.duration": "Dauer",
-  "power.stretch": "Abschnitt",
   "profile.current": "Aktuelle Werte",
   "profile.entryHint": "Nur ausgefüllte Felder werden gespeichert; leere behalten ihren bisherigen Wert. Eine Fahrt nutzt die Werte, die an ihrem Tag galten - Fahrten vor dem ersten Eintrag nutzen den ersten.",
   "profile.ftp": "FTP",

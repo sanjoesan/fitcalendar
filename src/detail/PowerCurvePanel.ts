@@ -1,6 +1,6 @@
 // The power curve - the best mean power for every duration from 1 s to the ride's length - and the table of best
-// efforts, both always for the whole ride. A row zooms to where the effort was ridden and stays marked; while a
-// stretch is zoomed, its own curve is drawn as a second line over the ride's.
+// efforts, both always for the whole ride, as one line (user 2026-10-18: "nur eine linie"). A row zooms to where the
+// effort was ridden and stays marked.
 
 import uPlot from "uplot";
 import type { AppContext } from "../app/context";
@@ -23,8 +23,6 @@ export class PowerCurvePanel {
   /** The whole ride's curve and best efforts: computed once, they do not change with the zoom. */
   private readonly wholeCurve: BestEffort[] = [];
   private readonly efforts: BestEffort[] = [];
-  /** The zoomed stretch's watts per duration of the whole curve; null where the stretch is too short. */
-  private stretch: (number | null)[] = [];
   private readonly disposer = new Disposer();
 
   constructor(private readonly ctx: AppContext, private readonly session: DetailSession) {
@@ -65,17 +63,10 @@ export class PowerCurvePanel {
     return athleteForRide(this.ctx.athlete.profile, this.session.summary).weight;
   }
 
-  /** The zoom changed: the stretch's curve and the marked effort row follow; the ride's curve stays. */
+  /** The zoom changed: only the marked effort row follows; the curve is the ride's. */
   private showView(): void {
-    const { session } = this;
-    if (session.isZoomed) {
-      const curve = bestEfforts(perSecond(session.streams.time, session.streams.channels.power!, session.view), CURVE_DURATIONS);
-      this.stretch = this.wholeCurve.map((p) => curve.find((s) => s.duration === p.duration)?.watts ?? null);
-    } else {
-      this.stretch = this.wholeCurve.map(() => null);
-    }
-    if (this.chartHost.clientWidth > 0) this.renderChart();
-    markZoomRows(this.table, session, this.ctx.i18n.t.bind(this.ctx.i18n));
+    if (!this.plot && this.chartHost.clientWidth > 0) this.renderChart();
+    markZoomRows(this.table, this.session, this.ctx.i18n.t.bind(this.ctx.i18n));
   }
 
   private renderChart(): void {
@@ -86,10 +77,8 @@ export class PowerCurvePanel {
     const weight = this.weight();
     const theme = readChartTheme();
     const colour = cssVar("--ch-power");
-    const stretchColour = cssVar("--terracotta");
     const xs = this.wholeCurve.map((p) => p.duration);
     const whole = this.wholeCurve.map((p) => p.watts);
-    const zoomed = this.stretch.some((v) => v !== null);
     const perKilo = (w: number) => (weight ? ` · ${fmt.number(w / weight, 2)} W/kg` : "");
 
     this.plot?.destroy();
@@ -105,19 +94,15 @@ export class PowerCurvePanel {
       series: [
         {},
         { stroke: colour, width: 2, fill: withAlpha(colour, 0.15), points: { show: true, size: 4 } },
-        { stroke: stretchColour, width: 2, dash: [5, 4], points: { show: false }, show: zoomed },
       ],
       cursor: { y: false, drag: { x: false, y: false }, points: { size: 8 } },
       hooks: {
         setCursor: [(u) => {
           const i = u.cursor.idx;
-          if (i == null) { this.readout.textContent = ""; return; }
-          const s = this.stretch[i];
-          this.readout.textContent = `${durationLabel(xs[i]!, c)}: ${fmt.number(whole[i]!)} ${t("unit.w")}${perKilo(whole[i]!)}`
-            + (s != null ? ` · ${t("power.stretch")} ${fmt.number(s)} ${t("unit.w")}` : "");
+          this.readout.textContent = i == null ? "" : `${durationLabel(xs[i]!, c)}: ${fmt.number(whole[i]!)} ${t("unit.w")}${perKilo(whole[i]!)}`;
         }],
       },
-    }, [xs, whole, this.stretch], this.chartHost);
+    }, [xs, whole], this.chartHost);
   }
 
   private renderTable(): void {
