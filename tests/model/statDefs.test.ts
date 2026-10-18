@@ -5,7 +5,7 @@ import { STAT, statValue } from "../../src/detail/statDefs";
 const figures = (channels: Figures["channels"]): Figures => ({
   whole: true, range: { from: 0, to: 1 }, distance: 1000, movingTime: 100, elapsedTime: 100, ascent: 0, descent: 0, channels,
   power: null, load: null, device: {}, calories: null, netGradient: null,
-  athlete: { values: { ftp: 210, weight: 75, maxHr: 185 }, sources: { ftp: "profile", weight: "profile", maxHr: "file" } },
+  athlete: { ftp: 210, weight: 75, maxHr: 185 },
 });
 
 describe("statValue", () => {

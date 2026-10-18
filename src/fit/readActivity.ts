@@ -1,11 +1,10 @@
 // Turns decoded FIT messages into one ParsedActivity: the ride's samples as columns, its laps, sport and totals.
 // FIT-specific choices (enhanced fields first, which message names the ride) live here and nowhere else.
 
-import type { DeviceMetrics, FileAthlete, SportKind } from "../model/types";
+import type { DeviceMetrics, SportKind } from "../model/types";
 import { FitError, type FitMessage } from "./FitDecoder";
 import {
-  ACTIVITY, FILE_ID, FILE_TYPE_ACTIVITY, LAP, MESG, RECORD, SESSION, SPORT, TIME_IN_ZONE, USER_PROFILE, WORKOUT,
-  ZONES_TARGET, num, numbers, text, type FieldSpec,
+  ACTIVITY, FILE_ID, FILE_TYPE_ACTIVITY, LAP, MESG, RECORD, SESSION, SPORT, WORKOUT, num, text, type FieldSpec,
 } from "./profile";
 
 /** One value per sample; undefined where the record does not carry it. */
@@ -44,7 +43,6 @@ export interface ParsedActivity {
   readonly indoor: boolean;
   readonly deviceName: string | null;
   readonly deviceMetrics: DeviceMetrics;
-  readonly athlete: FileAthlete;
   /** Minutes east of UTC from the activity message; null when the file does not say. */
   readonly tzOffsetMin: number | null;
   readonly totals: DeviceTotals;
@@ -78,12 +76,10 @@ const COLUMNS: Readonly<Record<Exclude<keyof ParsedSamples, "timestamp">, readon
   balance: [RECORD.leftRightBalance],
 };
 
-/** Session fields that become DeviceMetrics. */
+/** Session fields that become DeviceMetrics. The rider's settings a device also writes (FTP, max heart rate, weight,
+ *  zones, and IF/TSS computed from them) are not read: the rider's values come only from the profile (user 2026-10-18). */
 const DEVICE_FIELDS: Readonly<Record<keyof DeviceMetrics, FieldSpec>> = {
   normalizedPower: SESSION.normalizedPower,
-  trainingStress: SESSION.trainingStress,
-  intensityFactor: SESSION.intensityFactor,
-  thresholdPower: SESSION.thresholdPower,
   work: SESSION.work,
   trainingEffect: SESSION.trainingEffect,
   anaerobicTrainingEffect: SESSION.anaerobicTrainingEffect,
@@ -125,7 +121,6 @@ export function readActivity(messages: readonly FitMessage[]): ParsedActivity {
         return v === undefined || v <= 0 ? [] : [[key, v]];
       }),
     ) as DeviceMetrics,
-    athlete: fileAthlete(messages),
     tzOffsetMin: timeZoneOffset(byType(MESG.activity)),
     totals: deviceTotals(sessions),
     samples,
@@ -172,26 +167,6 @@ function deviceTotals(sessions: readonly FitMessage[]): DeviceTotals {
     descent: sum(SESSION.descent),
     calories: sum(SESSION.calories),
   };
-}
-
-/** What the device knew about the rider: zones_target, user_profile and the session's time_in_zone message. */
-function fileAthlete(messages: readonly FitMessage[]): FileAthlete {
-  const target = messages.find((m) => m.global === MESG.zonesTarget);
-  const user = messages.find((m) => m.global === MESG.userProfile);
-  const zones = messages.find((m) => m.global === MESG.timeInZone && num(m, TIME_IN_ZONE.referenceMesg) === MESG.session)
-    ?? messages.find((m) => m.global === MESG.timeInZone);
-  const pick = (...values: (number | undefined)[]) => values.find((v) => v !== undefined && v > 0);
-  const athlete: Record<string, unknown> = {
-    ftp: pick(zones && num(zones, TIME_IN_ZONE.functionalThresholdPower), target && num(target, ZONES_TARGET.functionalThresholdPower)),
-    maxHr: pick(zones && num(zones, TIME_IN_ZONE.maxHeartRate), target && num(target, ZONES_TARGET.maxHeartRate)),
-    restHr: pick(zones && num(zones, TIME_IN_ZONE.restingHeartRate), user && num(user, USER_PROFILE.restingHeartRate)),
-    lthr: pick(zones && num(zones, TIME_IN_ZONE.thresholdHeartRate), target && num(target, ZONES_TARGET.thresholdHeartRate)),
-    weight: pick(user && num(user, USER_PROFILE.weight)),
-    hrZoneTops: zones && numbers(zones, TIME_IN_ZONE.hrZoneHighBoundary),
-    powerZoneTops: zones && numbers(zones, TIME_IN_ZONE.powerZoneHighBoundary),
-  };
-  for (const key of Object.keys(athlete)) if (athlete[key] === undefined) delete athlete[key];
-  return athlete as FileAthlete;
 }
 
 function timeZoneOffset(activities: readonly FitMessage[]): number | null {

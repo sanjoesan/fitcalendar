@@ -1,6 +1,7 @@
 // The rider's profile over time and how a ride finds its values: FTP, heart rates, weight and zone boundaries.
+// Only what the rider entered counts - never values a device wrote into a file (user 2026-10-18).
 
-import { ZONE_SCHEMES, type ZoneScheme } from "./zones";
+import type { ZoneScheme } from "./zones";
 import type { ActivitySummary, AthleteValues, ChannelKey } from "./types";
 
 export type AthleteField = keyof AthleteValues;
@@ -36,25 +37,9 @@ export function profileValuesAt(profile: AthleteProfile, day: string): AthleteVa
   return values;
 }
 
-export type ValueSource = "profile" | "file";
-
-export interface RideAthlete {
-  readonly values: AthleteValues;
-  readonly sources: Partial<Record<AthleteField, ValueSource>>;
-}
-
-/** The values for one ride: the profile first, what the device wrote into the file where the profile has nothing. */
-export function athleteForRide(profile: AthleteProfile, ride: ActivitySummary): RideAthlete {
-  const fromProfile = profileValuesAt(profile, ride.day);
-  const values: Partial<Record<AthleteField, number>> = {};
-  const sources: Partial<Record<AthleteField, ValueSource>> = {};
-  for (const field of ATHLETE_FIELDS) {
-    const p = fromProfile[field];
-    const f = ride.fileAthlete[field];
-    if (p !== undefined) { values[field] = p; sources[field] = "profile"; }
-    else if (f !== undefined) { values[field] = f; sources[field] = "file"; }
-  }
-  return { values, sources };
+/** The rider's values for one ride: those of the profile on the ride's day. Nothing comes from the ride's file. */
+export function athleteForRide(profile: AthleteProfile, ride: ActivitySummary): AthleteValues {
+  return profileValuesAt(profile, ride.day);
 }
 
 export interface ResolvedZones {
@@ -62,27 +47,13 @@ export interface ResolvedZones {
   /** Absolute lower bound of each zone (W or bpm). */
   readonly lowerBounds: readonly number[];
   readonly reference: number;
-  readonly source: ValueSource;
 }
 
-/** The zone boundaries of a ride for a scheme, or null when neither profile nor file gives the reference. */
-export function zonesForRide(scheme: ZoneScheme, profile: AthleteProfile, ride: ActivitySummary, athlete: RideAthlete): ResolvedZones | null {
-  const reference = athlete.values[scheme.reference];
-  const source = athlete.sources[scheme.reference];
+/** The zone boundaries for a scheme from the rider's reference value, or null when the profile has none. */
+export function zonesForRide(scheme: ZoneScheme, profile: AthleteProfile, athlete: AthleteValues): ResolvedZones | null {
+  const reference = athlete[scheme.reference];
+  if (reference === undefined) return null;
   const custom = profile.zoneFractions[scheme.channel];
   const fractions = custom && custom.length === scheme.zones.length ? custom : scheme.zones.map((z) => z.from);
-  if (reference === undefined || source === undefined) return null;
-  // A file's own zone table is used when the reference came from the file too and the user has not set fractions.
-  const tops = scheme.reference === "ftp" ? ride.fileAthlete.powerZoneTops : ride.fileAthlete.hrZoneTops;
-  if (source === "file" && !custom && tops) {
-    const zoneTops = tops.length === scheme.zones.length + 1 ? tops.slice(1) : tops;
-    if (zoneTops.length === scheme.zones.length) {
-      return { scheme, reference, source, lowerBounds: [0, ...zoneTops.slice(0, -1).map((t) => t + 1)] };
-    }
-  }
-  return { scheme, reference, source, lowerBounds: fractions.map((f) => f * reference) };
-}
-
-export function schemeFor(channel: ChannelKey): ZoneScheme | undefined {
-  return ZONE_SCHEMES.find((s) => s.channel === channel);
+  return { scheme, reference, lowerBounds: fractions.map((f) => f * reference) };
 }

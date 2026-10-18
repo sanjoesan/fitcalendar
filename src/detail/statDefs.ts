@@ -18,8 +18,6 @@ export interface StatDef {
   readonly labelKey: TextKey;
   readonly value: (f: Figures) => number | null | undefined;
   readonly format: (v: number, c: StatContext) => string;
-  /** For values that depend on the rider's settings: where the setting came from. */
-  readonly source?: (f: Figures) => "profile" | "file" | undefined;
   /** The measurement the statistic is about: without it on the ride, the statistic is not shown (an FTP or W/kg
    *  says nothing about a ride without a power meter). */
   readonly needs?: ChannelKey;
@@ -53,9 +51,7 @@ const ratio = (value: (f: Figures) => number | null | undefined, ref: (f: Figure
   const r = ref(f);
   return v != null && r ? v / r : null;
 };
-const weight = (f: Figures) => f.athlete.values.weight;
-const ftpSource = (f: Figures) => f.athlete.sources.ftp;
-const weightSource = (f: Figures) => f.athlete.sources.weight;
+const weight = (f: Figures) => f.athlete.weight;
 
 export const STAT = {
   distance: { labelKey: "totals.distance", value: (f) => f.distance, format: (v, c) => c.fmt.distance(v) },
@@ -72,17 +68,17 @@ export const STAT = {
   maxSpeed: { labelKey: "stat.maxSpeed", value: max("speed"), format: channel("speed") },
   heartRate: { labelKey: "stat.heartRate", value: mean("heartRate"), format: channel("heartRate") },
   maxHeartRate: { labelKey: "stat.maxHeartRate", value: max("heartRate"), format: channel("heartRate") },
-  heartPctMax: { labelKey: "stat.heartPctMax", value: ratio(mean("heartRate"), (f) => f.athlete.values.maxHr), format: percent, source: (f) => f.athlete.sources.maxHr, needs: "heartRate" },
+  heartPctMax: { labelKey: "stat.heartPctMax", value: ratio(mean("heartRate"), (f) => f.athlete.maxHr), format: percent, needs: "heartRate" },
   power: { labelKey: "stat.power", value: mean("power"), format: watts },
   maxPower: { labelKey: "stat.maxPower", value: max("power"), format: watts },
   normalizedPower: { labelKey: "stat.normalizedPower", value: (f) => f.power?.normalized ?? f.device.normalizedPower, format: watts },
   best20: { labelKey: "stat.best20", value: best(1200), format: watts },
-  intensity: { labelKey: "stat.intensity", value: (f) => f.load?.intensity, format: plain(2), source: ftpSource, needs: "power" },
-  tss: { labelKey: "stat.tss", value: (f) => f.load?.stress, format: plain(0), source: ftpSource, needs: "power" },
+  intensity: { labelKey: "stat.intensity", value: (f) => f.load?.intensity, format: plain(2), needs: "power" },
+  tss: { labelKey: "stat.tss", value: (f) => f.load?.stress, format: plain(0), needs: "power" },
   work: { labelKey: "stat.work", value: (f) => f.power?.work ?? f.device.work, format: (v, c) => `${c.fmt.number(v)} kJ` },
-  powerPerKilo: { labelKey: "stat.powerPerKilo", value: ratio(mean("power"), weight), format: perKilo, source: weightSource, needs: "power" },
-  npPerKilo: { labelKey: "stat.npPerKilo", value: ratio((f) => f.power?.normalized, weight), format: perKilo, source: weightSource, needs: "power" },
-  ftp: { labelKey: "stat.ftp", value: (f) => f.athlete.values.ftp, format: watts, source: ftpSource, needs: "power" },
+  powerPerKilo: { labelKey: "stat.powerPerKilo", value: ratio(mean("power"), weight), format: perKilo, needs: "power" },
+  npPerKilo: { labelKey: "stat.npPerKilo", value: ratio((f) => f.power?.normalized, weight), format: perKilo, needs: "power" },
+  ftp: { labelKey: "stat.ftp", value: (f) => f.athlete.ftp, format: watts, needs: "power" },
   balance: { labelKey: "stat.balance", value: (f) => f.device.leftRightBalance ?? f.channels.balance?.mean, format: (v, c) => `${c.fmt.number(v)} % L · ${c.fmt.number(100 - v)} % R` },
   torqueLeft: { labelKey: "stat.torqueLeft", value: (f) => f.device.leftTorqueEffectiveness, format: pedal },
   torqueRight: { labelKey: "stat.torqueRight", value: (f) => f.device.rightTorqueEffectiveness, format: pedal },
@@ -95,7 +91,6 @@ export const STAT = {
   maxTemperature: { labelKey: "stat.maxTemperature", value: max("temperature"), format: channel("temperature") },
   aerobicTe: { labelKey: "stat.aerobicTe", value: (f) => f.device.trainingEffect, format: plain(1) },
   anaerobicTe: { labelKey: "stat.anaerobicTe", value: (f) => f.device.anaerobicTrainingEffect, format: plain(1) },
-  deviceTss: { labelKey: "stat.deviceTss", value: (f) => f.device.trainingStress, format: plain(0) },
   calories: { labelKey: "stat.calories", value: (f) => f.calories, format: (v, c) => `${c.fmt.number(v)} ${c.t("unit.kcal")}` },
 } satisfies Record<string, StatDef>;
 
@@ -111,7 +106,7 @@ export const STAT_GROUPS: readonly StatGroup[] = [
   { titleKey: "group.pedals", stats: [STAT.balance, STAT.torqueLeft, STAT.torqueRight, STAT.smoothLeft, STAT.smoothRight] },
   { titleKey: "group.cadence", stats: [STAT.cadence, STAT.maxCadence] },
   { titleKey: "group.temperature", stats: [STAT.temperature, STAT.minTemperature, STAT.maxTemperature] },
-  { titleKey: "group.training", stats: [STAT.aerobicTe, STAT.anaerobicTe, STAT.deviceTss, STAT.calories] },
+  { titleKey: "group.training", stats: [STAT.aerobicTe, STAT.anaerobicTe, STAT.calories] },
 ];
 
 export interface TileDef {

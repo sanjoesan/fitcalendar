@@ -58,7 +58,7 @@ export class PowerCurvePanel {
     const t = ctx.i18n.t.bind(ctx.i18n);
     const series = perSecond(session.streams.time, session.streams.channels.power!, session.view);
     const curve = session.isZoomed ? bestEfforts(series, CURVE_DURATIONS) : this.wholeCurve;
-    const weight = athleteForRide(ctx.athlete.profile, session.summary).values.weight;
+    const weight = athleteForRide(ctx.athlete.profile, session.summary).weight;
     const c = { fmt, t };
 
     this.plot?.destroy();

@@ -68,10 +68,9 @@ export class StatsPanel {
   private row(stat: StatDef, f: Figures, c: StatContext): HTMLElement[] {
     const v = statValue(stat, f);
     if (v === null) return [];
-    const source = stat.source?.(f);
     return [
       h("dt", {}, c.t(stat.labelKey)),
-      h("dd", {}, stat.format(v, c), source === "file" ? h("span", { class: "stat-source", title: c.t("profile.fromFile") }, " ⓕ") : null),
+      h("dd", {}, stat.format(v, c)),
     ];
   }
 

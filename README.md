@@ -25,15 +25,16 @@ OpenStreetMap tiles of the map.
 - Laps, splits (1/5/10 km) and detected climbs; pointing at a row outlines it, clicking zooms to it.
 - Statistics like a bike computer's: moving/elapsed time, ascent/descent, min/max elevation, gradient, average and
   maximum speed, heart rate, power and cadence, Normalized Power, IF, TSS, work (kJ), best 20 minutes, W/kg,
-  temperature, pedal metrics and training effect when the device wrote them.
+  temperature, pedal metrics and training effect when the device wrote them. FTP, IF, TSS and W/kg only on rides
+  with power, % of max HR only on rides with heart rate.
 - Time in heart-rate zones (5) and power zones (7), the power curve and the best efforts (5 s … 60 min) - each
   effort can be shown on the ride.
 - Rename, download the original file, delete (with undo), previous/next ride.
 
 **Athlete profile**
 - FTP, maximum / threshold / resting heart rate and weight with the day they apply from: every ride uses the values
-  of its day. Values a device wrote into the file are used where the profile has none.
-- Suggestions from the rides (FTP from the best 20 minutes, the highest heart rate) and editable zone boundaries.
+  of its day. Only what you enter counts - the rider settings a device writes into .fit files are not read.
+- Editable zone boundaries.
 
 German and English; light and dark.
 

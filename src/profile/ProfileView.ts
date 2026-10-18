@@ -1,15 +1,14 @@
-// The athlete profile: FTP, heart rates and weight with the day they apply from, suggestions from the rides,
-// and the zone boundaries. Every ride uses the values that applied on its day.
+// The athlete profile: FTP, heart rates and weight with the day they apply from, and the zone boundaries.
+// Every ride uses the values that applied on its day. Only the rider enters values - nothing is taken over from
+// .fit files or derived from rides (user 2026-10-18).
 
 import type { AppContext, View } from "../app/context";
 import { Disposer } from "../app/Emitter";
-import { ATHLETE_FIELDS, profileValuesAt, type AthleteEntry, type AthleteField } from "../model/athlete";
+import { profileValuesAt, type AthleteEntry, type AthleteField } from "../model/athlete";
 import { today } from "../model/calendar";
-import type { AthleteValues } from "../model/types";
 import { ZONE_SCHEMES, type ZoneScheme } from "../model/zones";
 import { h, replaceChildren } from "../ui/dom";
 import { icon } from "../ui/icons";
-import { rideTitle } from "../ui/rideTitle";
 import { languageSwitch, themeSwitch } from "../ui/settingsControls";
 import type { TextKey } from "../i18n/de";
 
@@ -30,15 +29,12 @@ const FIELDS: readonly FieldDef[] = [
   { field: "weight", labelKey: "profile.weight", unitKey: "unit.kg", min: 30, max: 200, step: 0.1 },
 ];
 
-/** FTP estimate from the best 20 minutes (the common 95 % rule). */
-const FTP_FROM_20MIN = 0.95;
-
 export class ProfileView implements View {
   readonly element = h("div", { class: "profile" });
   private readonly disposer = new Disposer();
 
   constructor(private readonly ctx: AppContext) {
-    this.disposer.add(ctx.athlete.on("changed", () => this.render()), ctx.rides.on("changed", () => this.render()));
+    this.disposer.add(ctx.athlete.on("changed", () => this.render()));
     this.render();
   }
 
@@ -50,7 +46,7 @@ export class ProfileView implements View {
     const t = this.ctx.i18n.t.bind(this.ctx.i18n);
     replaceChildren(this.element,
       h("header", { class: "profile__head" }, h("h1", {}, t("profile.title")), h("p", { class: "profile__intro" }, t("profile.intro"))),
-      h("div", { class: "profile__grid" }, this.currentCard(), this.suggestionsCard()),
+      this.currentCard(),
       this.historyCard(),
       h("div", { class: "profile__grid" }, ZONE_SCHEMES.map((s) => this.zonesCard(s))),
       h("section", { class: "card" }, h("h2", {}, t("theme.label")),
@@ -89,42 +85,6 @@ export class ProfileView implements View {
       void ctx.athlete.setEntry({ id: crypto.randomUUID(), validFrom: date.value || today(), ...values });
     });
     return form;
-  }
-
-  /** Values derived from the stored rides, to take over with one click. */
-  private suggestionsCard(): HTMLElement {
-    const { ctx } = this;
-    const { fmt } = ctx.i18n;
-    const t = ctx.i18n.t.bind(ctx.i18n);
-    const rides = ctx.rides.all();
-    const best20 = rides.reduce<{ watts: number; ride: (typeof rides)[number] } | null>((best, r) => {
-      const w = r.power?.bestEfforts.find((e) => e.duration === 1200)?.watts;
-      return w !== undefined && (!best || w > best.watts) ? { watts: w, ride: r } : best;
-    }, null);
-    const maxHr = rides.reduce<{ bpm: number; ride: (typeof rides)[number] } | null>((best, r) => {
-      const v = r.channels.heartRate?.max;
-      return v !== undefined && (!best || v > best.bpm) ? { bpm: v, ride: r } : best;
-    }, null);
-    const fromFile = [...rides].reverse().find((r) => ATHLETE_FIELDS.some((f) => r.fileAthlete[f] !== undefined));
-    const take = (values: AthleteValues) => void ctx.athlete.setEntry({ id: crypto.randomUUID(), validFrom: today(), ...values });
-    const items: HTMLElement[] = [];
-    if (best20) {
-      const ftp = Math.round(best20.watts * FTP_FROM_20MIN);
-      items.push(suggestion(t("profile.suggestFtp", { v: fmt.number(ftp), w: fmt.number(best20.watts) }),
-        `${rideTitle(ctx.i18n, best20.ride)} · ${fmt.rideDateShort(best20.ride.start, best20.ride.tzOffsetMin)}`, t("profile.take"), () => take({ ftp })));
-    }
-    if (maxHr) {
-      items.push(suggestion(t("profile.suggestMaxHr", { v: fmt.number(maxHr.bpm) }),
-        `${rideTitle(ctx.i18n, maxHr.ride)} · ${fmt.rideDateShort(maxHr.ride.start, maxHr.ride.tzOffsetMin)}`, t("profile.take"), () => take({ maxHr: Math.round(maxHr.bpm) })));
-    }
-    if (fromFile) {
-      const values = Object.fromEntries(ATHLETE_FIELDS.flatMap((f) => (fromFile.fileAthlete[f] !== undefined ? [[f, fromFile.fileAthlete[f]]] : []))) as AthleteValues;
-      const text = FIELDS.filter((f) => values[f.field] !== undefined).map((f) => `${t(f.labelKey)} ${fmt.number(values[f.field]!)}`).join(" · ");
-      items.push(suggestion(t("profile.suggestFile", { v: text }), `${rideTitle(ctx.i18n, fromFile)} · ${fmt.rideDateShort(fromFile.start, fromFile.tzOffsetMin)}`, t("profile.take"), () => take(values)));
-    }
-    return h("section", { class: "card" },
-      h("h2", {}, t("profile.suggestions")),
-      items.length ? h("ul", { class: "suggestions" }, items) : h("p", { class: "muted" }, t("profile.noSuggestions")));
   }
 
   private historyCard(): HTMLElement {
@@ -188,10 +148,4 @@ export class ProfileView implements View {
     });
     return form;
   }
-}
-
-function suggestion(text: string, source: string, action: string, run: () => void): HTMLElement {
-  return h("li", { class: "suggestion" },
-    h("div", {}, h("strong", {}, text), h("span", { class: "suggestion__source" }, source)),
-    h("button", { class: "button", type: "button", onclick: run }, action));
 }

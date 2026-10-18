@@ -35,7 +35,7 @@ export class ZonesPanel {
     this.element.hidden = schemes.length === 0;
     const athlete = athleteForRide(ctx.athlete.profile, session.summary);
     replaceChildren(this.element, schemes.map((scheme) => {
-      const zones = zonesForRide(scheme, ctx.athlete.profile, session.summary, athlete);
+      const zones = zonesForRide(scheme, ctx.athlete.profile, athlete);
       return zones ? this.card(zones) : this.ask(scheme);
     }));
   }
@@ -53,7 +53,7 @@ export class ZonesPanel {
     return h("article", { class: "zone-card" },
       h("header", { class: "zone-card__head" },
         h("h3", {}, t(zones.scheme.titleKey)),
-        h("span", { class: "zone-card__ref" }, refLabel, zones.source === "file" ? ` · ${t("profile.fromFile")}` : "")),
+        h("span", { class: "zone-card__ref" }, refLabel)),
       h("ol", { class: "zone-list" }, [...zones.scheme.zones].map((zone, i) => i).reverse().map((i) => {
         const zone = zones.scheme.zones[i]!;
         const lower = zones.lowerBounds[i]!;

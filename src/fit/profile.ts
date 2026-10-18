@@ -4,15 +4,12 @@ import type { FitMessage } from "./FitDecoder";
 
 export const MESG = {
   fileId: 0,
-  userProfile: 3,
-  zonesTarget: 7,
   sport: 12,
   session: 18,
   lap: 19,
   record: 20,
   workout: 26,
   activity: 34,
-  timeInZone: 216,
 } as const;
 
 /** How one field is turned into an SI value: value = raw / scale - offset, or a special conversion. */
@@ -59,10 +56,7 @@ export const SESSION = {
   descent: { num: 23 },
   trainingEffect: { num: 24, scale: 10 },
   normalizedPower: { num: 34 },
-  trainingStress: { num: 35, scale: 10 },
-  intensityFactor: { num: 36, scale: 1000 },
   leftRightBalance: { num: 37, convert: leftShare16 },
-  thresholdPower: { num: 45 },
   work: { num: 48, scale: 1000 },
   leftTorqueEffectiveness: { num: 101, scale: 2 },
   rightTorqueEffectiveness: { num: 102, scale: 2 },
@@ -70,27 +64,6 @@ export const SESSION = {
   rightPedalSmoothness: { num: 104, scale: 2 },
   profileName: { num: 110 },
   anaerobicTrainingEffect: { num: 137, scale: 10 },
-} as const satisfies Record<string, FieldSpec>;
-
-export const ZONES_TARGET = {
-  maxHeartRate: { num: 1 },
-  thresholdHeartRate: { num: 2 },
-  functionalThresholdPower: { num: 3 },
-} as const satisfies Record<string, FieldSpec>;
-
-export const USER_PROFILE = {
-  weight: { num: 4, scale: 10 },
-  restingHeartRate: { num: 8 },
-} as const satisfies Record<string, FieldSpec>;
-
-export const TIME_IN_ZONE = {
-  referenceMesg: { num: 0 },
-  hrZoneHighBoundary: { num: 6 },
-  powerZoneHighBoundary: { num: 9 },
-  maxHeartRate: { num: 11 },
-  restingHeartRate: { num: 12 },
-  thresholdHeartRate: { num: 13 },
-  functionalThresholdPower: { num: 15 },
 } as const satisfies Record<string, FieldSpec>;
 
 export const WORKOUT = {
@@ -134,13 +107,6 @@ export function num(message: FitMessage, spec: FieldSpec): number | undefined {
   if (typeof value !== "number") return undefined;
   if (spec.convert) return spec.convert(value);
   return value / (spec.scale ?? 1) - (spec.offset ?? 0);
-}
-
-/** An array field (e.g. zone boundaries) as numbers in their unit. */
-export function numbers(message: FitMessage, spec: FieldSpec): number[] | undefined {
-  const raw = message.fields.get(spec.num);
-  const values = Array.isArray(raw) ? raw : typeof raw === "number" ? [raw] : undefined;
-  return values?.map((v) => (spec.convert ? spec.convert(v) : v / (spec.scale ?? 1) - (spec.offset ?? 0)));
 }
 
 export function text(message: FitMessage, spec: FieldSpec): string | undefined {

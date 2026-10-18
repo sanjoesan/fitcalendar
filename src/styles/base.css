@@ -186,6 +186,33 @@ a:hover { color: var(--terracotta-dark); }
 .import-row__status { color: var(--muted); }
 @keyframes pulse { to { opacity: 0.3; } }
 
+/* --- import window ---------------------------------------------------------------------------------------------- */
+.import-dialog { inline-size: min(620px, calc(100vw - 24px)); max-inline-size: none; display: none; gap: 14px; padding: 18px; }
+.import-dialog[open] { display: grid; }
+.import-dialog__head { display: flex; justify-content: space-between; align-items: center; }
+.import-field {
+  display: grid; justify-items: center; gap: 8px; padding: 28px 18px; text-align: center;
+  border: 2px dashed var(--line-strong); border-radius: var(--radius); background: var(--cream);
+  transition: border-color 120ms, background 120ms;
+}
+.import-field--active { border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 10%, var(--cream)); }
+.import-field__icon { inline-size: 38px; block-size: 38px; color: var(--terracotta); }
+.import-field strong { font-family: var(--font-display); font-size: 1.15rem; }
+.import-field__or { color: var(--muted); font-size: 0.85rem; }
+.import-field__buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.import-field__hint { color: var(--faint); font-size: 0.78rem; max-inline-size: 46ch; }
+.import-dialog__files { display: grid; gap: 6px; min-block-size: 0; }
+.import-dialog__summary { display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+.import-dialog__list { list-style: none; margin: 0; padding: 0; max-block-size: 34vh; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius-small); }
+.tray-file { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; font-size: 0.86rem; border-block-end: 1px solid var(--line); }
+.tray-file:last-child { border-block-end: 0; }
+.tray-file__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tray-file__size { color: var(--muted); font-size: 0.78rem; }
+.import-dialog__skipped { margin: 0; color: var(--muted); font-size: 0.82rem; }
+.import-dialog__actions { align-items: center; }
+.import-dialog__privacy { margin-inline-end: auto; font-size: 0.76rem; color: var(--faint); }
+@media (max-width: 699px) { .import-dialog__privacy { display: none; } }
+
 @media (max-width: 899px) {
   .nav-link__label, .import-button__label { display: none; }
   .import-button { padding: 0 11px; }

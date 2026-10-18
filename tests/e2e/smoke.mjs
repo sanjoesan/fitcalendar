@@ -33,7 +33,14 @@ await page.waitForSelector(".month-grid");
 check("calendar renders (empty)", (await page.locator(".empty-state").count()) === 1);
 await page.screenshot({ path: join(outDir, "01-empty.png") });
 
-await page.locator('input[type="file"]').setInputFiles(files);
+// the import window: lay the files down, check the list, then import
+await page.locator(".import-button").click();
+await page.waitForSelector(".import-dialog[open]");
+await page.locator(".import-dialog input[type=file]:not([webkitdirectory])").setInputFiles(files);
+const laid = await page.locator(".tray-file").count();
+check("import window lists the files", laid === files.length, `${laid} of ${files.length}`);
+await page.screenshot({ path: join(outDir, "01b-import-window.png") });
+await page.locator(".import-dialog__actions .button--primary").click();
 await page.waitForFunction((n) => {
   const rows = document.querySelectorAll(".import-row");
   return rows.length === n && [...rows].every((r) => !r.classList.contains("import-row--waiting") && !r.classList.contains("import-row--parsing"));
@@ -130,7 +137,9 @@ await page.goto(base + "#/profile");
 await page.waitForSelector(".profile-form");
 await page.waitForTimeout(400); // the screen change cross-fades
 check("profile page", (await page.locator(".profile-form__fields .field").count()) === 5);
-check("profile suggestions", (await page.locator(".suggestion").count()) > 0);
+// FTP and weight were never entered: a device's settings in a file (e.g. Garmin's FTP and weight) must not appear
+const current = await page.locator(".profile-form .field__current").allTextContents();
+check("profile: nothing taken from files", current[0] === "nicht gesetzt" && current[4] === "nicht gesetzt", current.join(" | "));
 await page.emulateMedia({ colorScheme: "light" });
 await page.screenshot({ path: join(outDir, "09-profile.png"), fullPage: true });
 

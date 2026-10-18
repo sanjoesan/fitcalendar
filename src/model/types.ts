@@ -14,9 +14,6 @@ export interface ChannelStats {
 /** Values only the recording device knows and writes into the session message; absent when it did not. */
 export interface DeviceMetrics {
   readonly normalizedPower?: number;
-  readonly trainingStress?: number;
-  readonly intensityFactor?: number;
-  readonly thresholdPower?: number;
   /** Kilojoules. */
   readonly work?: number;
   readonly trainingEffect?: number;
@@ -29,19 +26,13 @@ export interface DeviceMetrics {
   readonly rightPedalSmoothness?: number;
 }
 
-/** The rider's physiology: the profile's values or what a device wrote into the file. */
+/** The rider's physiology - only what the rider entered in the profile. */
 export interface AthleteValues {
   readonly ftp?: number;
   readonly maxHr?: number;
   readonly restHr?: number;
   readonly lthr?: number;
   readonly weight?: number;
-}
-
-export interface FileAthlete extends AthleteValues {
-  /** Upper bounds of the device's heart-rate / power zones (bpm / W), when it wrote them. */
-  readonly hrZoneTops?: readonly number[];
-  readonly powerZoneTops?: readonly number[];
 }
 
 /** Best efforts and the like, computed once at import from the power samples. */
@@ -86,7 +77,6 @@ export interface ActivitySummary {
   /** Null without power samples. */
   readonly power: PowerFigures | null;
   readonly device: DeviceMetrics;
-  readonly fileAthlete: FileAthlete;
   readonly lapCount: number;
   /** A simplified track ([lat, lon] pairs, empty without GPS) and elevation profile for previews. */
   readonly preview: RidePreviewData;

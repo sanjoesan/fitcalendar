@@ -80,7 +80,6 @@ export function summarize(parsed: ParsedActivity, meta: ImportMeta): Activity {
       channels: whole.channels,
       power: channels.power ? powerFigures(perSecond(time, channels.power)) : null,
       device: parsed.deviceMetrics,
-      fileAthlete: parsed.athlete,
       lapCount: streams.laps.length,
       preview: buildPreview(streams.lat, streams.lon, channels.altitude ?? null),
       importedAt: meta.importedAt,

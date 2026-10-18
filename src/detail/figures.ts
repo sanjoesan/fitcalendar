@@ -1,11 +1,11 @@
 // Every number the detail page shows for a stretch of the ride - the whole ride or the view/drag - computed once
 // per change and read by the tiles, the statistics groups and the zone bars.
 
-import { athleteForRide, type AthleteProfile, type RideAthlete } from "../model/athlete";
+import { athleteForRide, type AthleteProfile } from "../model/athlete";
 import { rideLoad } from "../model/load";
 import { perSecond, powerFigures, trainingLoad, type TrainingLoad } from "../model/power";
 import { segmentStats } from "../model/segment";
-import type { ActivityStreams, ActivitySummary, ChannelStatsMap, DeviceMetrics, PowerFigures, SampleRange } from "../model/types";
+import type { ActivityStreams, ActivitySummary, AthleteValues, ChannelStatsMap, DeviceMetrics, PowerFigures, SampleRange } from "../model/types";
 
 export interface Figures {
   /** The whole ride (device totals apply) or a stretch of it. */
@@ -19,8 +19,9 @@ export interface Figures {
   readonly channels: ChannelStatsMap;
   readonly power: PowerFigures | null;
   readonly load: TrainingLoad | null;
-  readonly athlete: RideAthlete;
-  /** Only for the whole ride: what the device computed (TE, its own NP/TSS, pedal metrics, calories). */
+  /** The profile's values on the ride's day. */
+  readonly athlete: AthleteValues;
+  /** Only for the whole ride: what the device computed (training effect, its NP, pedal metrics, calories). */
   readonly device: DeviceMetrics;
   readonly calories: number | null;
   /** End height minus start height over the distance. */
@@ -49,7 +50,7 @@ export function computeFigures(summary: ActivitySummary, streams: ActivityStream
   }
   const stats = segmentStats(streams, range);
   const power = streams.channels.power ? powerFigures(perSecond(streams.time, streams.channels.power, range)) : null;
-  const ftp = athlete.values.ftp;
+  const ftp = athlete.ftp;
   return {
     whole, range, athlete,
     distance: stats.distance,

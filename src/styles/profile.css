@@ -16,10 +16,6 @@
 .field__unit { color: var(--muted); font-size: 0.84rem; }
 .field__current { font-size: 0.74rem; color: var(--faint); }
 
-.suggestions { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.suggestion { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-small); background: var(--cream); }
-.suggestion strong { display: block; font-size: 0.9rem; }
-.suggestion__source { font-size: 0.76rem; color: var(--muted); }
 
 .zone-editor .table td { vertical-align: middle; }
 .zone-swatch { display: inline-block; inline-size: 12px; block-size: 12px; border-radius: 3px; vertical-align: -1px; }

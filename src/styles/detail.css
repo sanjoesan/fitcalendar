@@ -165,7 +165,6 @@
 .stat-group dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; font-size: 0.88rem; }
 .stat-group dt { color: var(--muted); }
 .stat-group dd { margin: 0; text-align: end; font-weight: 600; }
-.stat-source { color: var(--faint); font-weight: 400; cursor: help; }
 
 .detail-skeleton { display: grid; gap: 16px; }
 .skeleton { border-radius: var(--radius); background: linear-gradient(90deg, var(--cream), var(--sand), var(--cream)); background-size: 200% 100%; animation: shimmer 1.2s infinite linear; }

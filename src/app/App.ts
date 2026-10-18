@@ -3,6 +3,8 @@
 import { CalendarView } from "../calendar/CalendarView";
 import { DetailView } from "../detail/DetailView";
 import { DropZone } from "../import/DropZone";
+import { ImportDialog } from "../import/ImportDialog";
+import { ImportTray } from "../import/ImportTray";
 import { ImportPanel } from "../import/ImportPanel";
 import { ProfileView } from "../profile/ProfileView";
 import { h, prefersReducedMotion, replaceChildren } from "../ui/dom";
@@ -17,7 +19,8 @@ export class App {
   private readonly toolbarSlot = h("div", { class: "topbar__context" });
   private readonly navSlot = h("nav", { class: "topbar__nav" });
   private readonly actionsSlot = h("div", { class: "topbar__actions" });
-  private readonly fileInput = h("input", { type: "file", accept: ".fit,.FIT", multiple: true, hidden: true });
+  private readonly tray = new ImportTray();
+  private importDialog!: ImportDialog;
   private view: View | null = null;
   private shownRoute: Route | null = null;
   private readonly disposer = new Disposer();
@@ -26,11 +29,11 @@ export class App {
 
   start(): void {
     const { ctx } = this;
-    this.fileInput.addEventListener("change", () => {
-      ctx.importJob.add([...(this.fileInput.files ?? [])]);
-      this.fileInput.value = "";
+    this.importDialog = new ImportDialog(ctx, this.tray, (files) => ctx.importJob.add(files));
+    const dropZone = new DropZone(ctx, this.importDialog, (files) => {
+      this.tray.add(files);
+      this.importDialog.open();
     });
-    const dropZone = new DropZone(ctx, (files) => ctx.importJob.add(files));
     const panel = new ImportPanel(ctx);
     replaceChildren(this.root,
       h("header", { class: "topbar" },
@@ -44,7 +47,7 @@ export class App {
       dropZone.element,
       panel.element,
       ctx.toasts.element,
-      this.fileInput,
+      this.importDialog.element,
     );
     this.renderChrome();
     this.disposer.add(
@@ -54,13 +57,14 @@ export class App {
     );
     this.applyTheme();
     document.addEventListener("keydown", (e) => {
-      if (e.key.toLowerCase() === "i" && !isTyping(e) && !e.ctrlKey && !e.metaKey && !e.altKey) this.openPicker();
+      if (e.key.toLowerCase() === "i" && !isTyping(e) && !e.ctrlKey && !e.metaKey && !e.altKey) this.openImport();
     });
     this.show(ctx.router.route);
   }
 
-  openPicker(): void {
-    this.fileInput.click();
+  /** The import window with its drop field. */
+  openImport(): void {
+    this.importDialog.open();
   }
 
   private show(route: Route, force = false): void {
@@ -84,7 +88,7 @@ export class App {
   private createView(route: Route): View {
     switch (route.kind) {
       case "month":
-        return new CalendarView(this.ctx, route.month, () => this.openPicker());
+        return new CalendarView(this.ctx, route.month, () => this.openImport());
       case "ride":
         return new DetailView(this.ctx, route.id, route.view);
       case "profile":
@@ -108,7 +112,7 @@ export class App {
   private renderChrome(): void {
     const t = this.ctx.i18n.t.bind(this.ctx.i18n);
     replaceChildren(this.actionsSlot,
-      h("button", { class: "button button--primary import-button", type: "button", title: `${t("action.import")} (I)`, onclick: () => this.openPicker() },
+      h("button", { class: "button button--primary import-button", type: "button", title: `${t("action.import")} (I)`, onclick: () => this.openImport() },
         icon("upload"), h("span", { class: "import-button__label" }, t("action.import"))),
       languageSwitch(this.ctx),
       themeSwitch(this.ctx, () => {}),

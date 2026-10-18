@@ -30,7 +30,7 @@ export class CalendarView implements View {
   private readonly picker: MonthPicker;
   private readonly disposer = new Disposer();
 
-  constructor(private readonly ctx: AppContext, private readonly month: YearMonth, private readonly openPicker: () => void) {
+  constructor(private readonly ctx: AppContext, private readonly month: YearMonth, private readonly openImport: () => void) {
     const t = ctx.i18n.t.bind(ctx.i18n);
     this.preview = new RidePreview(ctx);
     this.picker = new MonthPicker(ctx, month);
@@ -96,7 +96,7 @@ export class CalendarView implements View {
             icon("logo", "empty-state__art"),
             h("h2", {}, t("calendar.emptyTitle")),
             h("p", {}, t("calendar.emptyText")),
-            h("button", { class: "button button--primary", type: "button", onclick: () => this.openPicker() }, icon("upload"), t("action.import")),
+            h("button", { class: "button button--primary", type: "button", onclick: () => this.openImport() }, icon("upload"), t("action.import")),
             h("p", { class: "empty-state__privacy" }, t("app.privacy"))))
       : null;
     replaceChildren(this.body,
