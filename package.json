@@ -1,0 +1,26 @@
+{
+  "name": "fitcalendar",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A calendar for your .fit rides - month view with weekly totals, ride detail with map and synced profiles. Runs entirely in the browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "leaflet": "1.9.4",
+    "uplot": "1.6.32"
+  },
+  "devDependencies": {
+    "@types/leaflet": "1.9.22",
+    "@types/node": "24.19.1",
+    "playwright-core": "1.63.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  }
+}

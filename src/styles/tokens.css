@@ -1,0 +1,162 @@
+/* Design tokens - golden-hour Tuscany: cream paper, wheat, terracotta, olive, cypress, sky. Light and dark. */
+
+@font-face {
+  font-family: "Lora";
+  src: url("./Lora.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #fbf6ea;
+  --surface: #fffdf7;
+  --cream: #f3e8d0;
+  --sand: #ead9b4;
+  --line: #e2d3b2;
+  --line-strong: #cdb98f;
+  --ink: #2e2a24;
+  --muted: #6b6155;
+  --faint: #9a8f7e;
+  --terracotta: #b5532f;
+  --terracotta-dark: #8f3f22;
+  --ochre: #d99a3d;
+  --wheat: #e8c779;
+  --olive: #6d7a3e;
+  --cypress: #2f4a33;
+  --sky: #4f86b0;
+  --stone: #cfc3ad;
+
+  --sport-ride: var(--terracotta);
+  --sport-run: var(--olive);
+  --sport-walk: var(--cypress);
+  --sport-swim: var(--sky);
+  --sport-other: var(--muted);
+
+  --ch-altitude: #c4943a;
+  --ch-speed: #4f86b0;
+  --ch-heart: #c0483a;
+  --ch-power: #7a6bb0;
+  --ch-cadence: #4f7a52;
+  --ch-gradient: #a06a3a;
+  --ch-temperature: #c07a2f;
+  --ch-balance: #8a7f6c;
+
+  --zone-1: #a9b8c4;
+  --zone-2: #6f9fc4;
+  --zone-3: #7aa86b;
+  --zone-4: #e0b44c;
+  --zone-5: #e08a3c;
+  --zone-6: #cc5a33;
+  --zone-7: #9c2f3f;
+
+  --ramp-1: #6f9fc4;
+  --ramp-2: #e8c779;
+  --ramp-3: #b5532f;
+
+  --track: #b5532f;
+  --track-casing: #fffdf7;
+  --track-highlight: #2f4a33;
+  --track-section: #d99a3d;
+
+  --chart-grid: #ece2cc;
+  --chart-cursor: #2e2a24;
+  --chart-select: rgba(181, 83, 47, 0.12);
+  --chart-highlight: rgba(217, 154, 61, 0.16);
+  --chart-lap: #cdb98f;
+
+  --shadow: 0 1px 2px rgba(46, 42, 36, 0.06), 0 4px 14px rgba(46, 42, 36, 0.07);
+  --shadow-lift: 0 2px 4px rgba(46, 42, 36, 0.08), 0 10px 26px rgba(46, 42, 36, 0.12);
+  --radius: 14px;
+  --radius-small: 9px;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Lora", Georgia, "Times New Roman", serif;
+  --topbar: 60px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1b1915;
+    --surface: #24211c;
+    --cream: #2c2822;
+    --sand: #39332a;
+    --line: #3a342b;
+    --line-strong: #52493b;
+    --ink: #f1e8d6;
+    --muted: #b6a78f;
+    --faint: #857a68;
+    --terracotta: #e07a52;
+    --terracotta-dark: #f0997a;
+    --ochre: #e8b25c;
+    --wheat: #e8c779;
+    --olive: #a8b56d;
+    --cypress: #8cb391;
+    --sky: #8fbbe0;
+    --stone: #5a5143;
+    --ch-altitude: #d9ad5a;
+    --ch-speed: #8fbbe0;
+    --ch-heart: #ec7b6c;
+    --ch-power: #b1a3e6;
+    --ch-cadence: #8cc391;
+    --ch-gradient: #d39a63;
+    --ch-temperature: #e8a35c;
+    --ch-balance: #b6a78f;
+    --zone-1: #7d8c97;
+    --ramp-1: #8fbbe0;
+    --ramp-3: #e07a52;
+    --track: #e07a52;
+    --track-casing: #1b1915;
+    --track-highlight: #e8c779;
+    --chart-grid: #332e26;
+    --chart-cursor: #f1e8d6;
+    --chart-select: rgba(224, 122, 82, 0.18);
+    --chart-highlight: rgba(232, 178, 92, 0.16);
+    --chart-lap: #52493b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.3);
+    --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 10px 26px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #1b1915;
+  --surface: #24211c;
+  --cream: #2c2822;
+  --sand: #39332a;
+  --line: #3a342b;
+  --line-strong: #52493b;
+  --ink: #f1e8d6;
+  --muted: #b6a78f;
+  --faint: #857a68;
+  --terracotta: #e07a52;
+  --terracotta-dark: #f0997a;
+  --ochre: #e8b25c;
+  --wheat: #e8c779;
+  --olive: #a8b56d;
+  --cypress: #8cb391;
+  --sky: #8fbbe0;
+  --stone: #5a5143;
+  --ch-altitude: #d9ad5a;
+  --ch-speed: #8fbbe0;
+  --ch-heart: #ec7b6c;
+  --ch-power: #b1a3e6;
+  --ch-cadence: #8cc391;
+  --ch-gradient: #d39a63;
+  --ch-temperature: #e8a35c;
+  --ch-balance: #b6a78f;
+  --zone-1: #7d8c97;
+  --ramp-1: #8fbbe0;
+  --ramp-3: #e07a52;
+  --track: #e07a52;
+  --track-casing: #1b1915;
+  --track-highlight: #e8c779;
+  --chart-grid: #332e26;
+  --chart-cursor: #f1e8d6;
+  --chart-select: rgba(224, 122, 82, 0.18);
+  --chart-highlight: rgba(232, 178, 92, 0.16);
+  --chart-lap: #52493b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.35), 0 10px 26px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
