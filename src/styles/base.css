@@ -212,10 +212,13 @@ a:hover { color: var(--terracotta-dark); }
 .import-dialog__actions { align-items: center; }
 .import-dialog__privacy { margin-inline-end: auto; font-size: 0.76rem; color: var(--faint); }
 @media (max-width: 699px) { .import-dialog__privacy { display: none; } }
+.export-dialog { inline-size: min(440px, calc(100vw - 24px)); display: none; gap: 14px; padding: 18px; }
+.export-dialog[open] { display: grid; }
+.export-dialog__info { margin: 0; color: var(--muted); }
 
 @media (max-width: 899px) {
-  .nav-link__label, .import-button__label { display: none; }
-  .import-button { padding: 0 11px; }
+  .nav-link__label, .import-button__label, .export-button__label { display: none; }
+  .import-button, .export-button { padding: 0 11px; }
 }
 @media (max-width: 699px) {
   .topbar { gap: 6px; padding-inline: 10px; }

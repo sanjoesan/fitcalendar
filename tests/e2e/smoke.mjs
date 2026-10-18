@@ -50,6 +50,15 @@ const failed = await page.locator(".import-row--error").count();
 check("import", added > 0, `${added} added, ${failed} errors of ${files.length}`);
 await page.screenshot({ path: join(outDir, "02-imported.png") });
 
+// export every ride from 1 June 2026 on as ZIP (checked afterwards with Python's zipfile)
+await page.locator(".export-button").click();
+await page.waitForSelector(".export-dialog[open]");
+await page.locator(".export-dialog input[type=date]").fill("2026-06-01");
+const exportInfo = await page.locator(".export-dialog__info").textContent();
+const [download] = await Promise.all([page.waitForEvent("download"), page.locator(".export-dialog .button--primary").click()]);
+await download.saveAs(join(outDir, "export.zip"));
+check("export ZIP", download.suggestedFilename() === "fitcalendar-ab-2026-06-01.zip", `${download.suggestedFilename()} - ${exportInfo}`);
+
 // open the month of the newest ride: the import panel links to it
 const lastMonthHref = await page.locator(".import-panel__day").last().getAttribute("href");
 await page.goto(base + lastMonthHref);

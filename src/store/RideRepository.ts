@@ -68,6 +68,11 @@ export class RideRepository extends Emitter<{ changed: RidesChanged }> {
     return days;
   }
 
+  /** Every ride from a day on (inclusive), oldest first. */
+  fromDay(firstDay: string): ActivitySummary[] {
+    return firstDay ? this.sorted.filter((s) => s.day >= firstDay) : [];
+  }
+
   /** The ride before / after in time. */
   neighbour(id: string, step: -1 | 1): ActivitySummary | undefined {
     const index = this.sorted.findIndex((s) => s.id === id);

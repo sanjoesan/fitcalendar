@@ -5,6 +5,7 @@ import { DetailView } from "../detail/DetailView";
 import { DropZone } from "../import/DropZone";
 import { ImportDialog } from "../import/ImportDialog";
 import { ImportTray } from "../import/ImportTray";
+import { ExportDialog } from "../export/ExportDialog";
 import { ImportPanel } from "../import/ImportPanel";
 import { ProfileView } from "../profile/ProfileView";
 import { h, prefersReducedMotion, replaceChildren } from "../ui/dom";
@@ -21,6 +22,7 @@ export class App {
   private readonly actionsSlot = h("div", { class: "topbar__actions" });
   private readonly tray = new ImportTray();
   private importDialog!: ImportDialog;
+  private exportDialog!: ExportDialog;
   private view: View | null = null;
   private shownRoute: Route | null = null;
   private readonly disposer = new Disposer();
@@ -30,6 +32,7 @@ export class App {
   start(): void {
     const { ctx } = this;
     this.importDialog = new ImportDialog(ctx, this.tray, (files) => ctx.importJob.add(files));
+    this.exportDialog = new ExportDialog(ctx);
     const dropZone = new DropZone(ctx, this.importDialog, (files) => {
       this.tray.add(files);
       this.importDialog.open();
@@ -48,6 +51,7 @@ export class App {
       panel.element,
       ctx.toasts.element,
       this.importDialog.element,
+      this.exportDialog.element,
     );
     this.renderChrome();
     this.disposer.add(
@@ -114,6 +118,8 @@ export class App {
     replaceChildren(this.actionsSlot,
       h("button", { class: "button button--primary import-button", type: "button", title: `${t("action.import")} (I)`, onclick: () => this.openImport() },
         icon("upload"), h("span", { class: "import-button__label" }, t("action.import"))),
+      h("button", { class: "button export-button", type: "button", title: t("export.title"), onclick: () => this.exportDialog.open() },
+        icon("download"), h("span", { class: "export-button__label" }, t("export.button"))),
       languageSwitch(this.ctx),
       themeSwitch(this.ctx, () => {}),
     );

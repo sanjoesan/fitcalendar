@@ -268,6 +268,15 @@ export const de = {
   "tray.importOne": "1 Datei importieren",
   "tray.importMany": "{n} Dateien importieren",
   "tray.dropHint": "Loslassen - die Dateien kommen ins Ablagefeld",
+  "export.button": "FIT exportieren",
+  "export.title": "FIT-Dateien als ZIP exportieren",
+  "export.from": "Alle Fahrten ab",
+  "export.count": "{n} Fahrten ab diesem Tag",
+  "export.countOne": "1 Fahrt ab diesem Tag",
+  "export.download": "ZIP herunterladen",
+  "export.packing": "wird gepackt …",
+  "export.done": "{n} Dateien exportiert",
+  "export.failed": "Der Export ist fehlgeschlagen.",
 } as const;
 
 export type TextKey = keyof typeof de;

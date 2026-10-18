@@ -270,4 +270,13 @@ export const en: Readonly<Record<TextKey, string>> = {
   "tray.importOne": "Import 1 file",
   "tray.importMany": "Import {n} files",
   "tray.dropHint": "Drop - the files go into the import tray",
+  "export.button": "Export FIT",
+  "export.title": "Export FIT files as ZIP",
+  "export.from": "All rides from",
+  "export.count": "{n} rides from this day on",
+  "export.countOne": "1 ride from this day on",
+  "export.download": "Download ZIP",
+  "export.packing": "packing …",
+  "export.done": "{n} files exported",
+  "export.failed": "The export failed.",
 };

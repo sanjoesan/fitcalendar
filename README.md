@@ -14,6 +14,7 @@ OpenStreetMap tiles of the map.
 - Ride chips in the sport's colour; resting on one shows a preview (track and elevation sketch, key numbers).
 - Import with the button, `I`, or by dropping files anywhere. Duplicates are recognised; files that are not
   activities, cut off or damaged are reported per file.
+- Export: every original .fit file from a chosen day on as one ZIP ("Export FIT").
 - Keyboard: arrows between days, `PgUp`/`PgDn` months, `T` today. On phones: an agenda per week, swipe for months.
 
 **Ride detail**
@@ -59,7 +60,8 @@ Pushing to `main` builds, tests and deploys to GitHub Pages (`.github/workflows/
 | `src/fit` | Reading FIT bytes (`FitDecoder`), the profile subset (`profile`), FIT → parsed activity (`readActivity`) |
 | `src/model` | Domain types and pure functions: summaries, segment statistics, climb, power, zones, calendar, sections |
 | `src/store` | IndexedDB, the ride repository and the athlete profile - the only owners of stored data |
-| `src/import` | The import job (worker parsing, duplicates), drop zone and import panel |
+| `src/import` | The import tray and window (files and folders laid down before importing), the import job (worker parsing, duplicates), drop zone and progress panel |
+| `src/export` | The ZIP export window and a small ZIP writer |
 | `src/calendar` | Month model, grid, agenda, totals, previews, month picker |
 | `src/detail` | The detail screen and its `DetailSession` (cursor, pin, zoom, preview) with the panels that follow it |
 | `src/charts` | uPlot profiles, the overview strip, x-axis projection, touch |
